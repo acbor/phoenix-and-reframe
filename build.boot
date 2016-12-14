@@ -4,7 +4,7 @@
                   [adzerk/boot-reload        "0.4.12"]
                   [org.clojure/clojure       "1.8.0"]
                   [org.clojure/clojurescript "1.9.229"]
-                  [reagent                   "0.6.0"]])
+                  [reagent                   "0.6.0" :exclusions [cljsjs/react]]])
 
 (require '[adzerk.boot-cljs   :refer [cljs]]
          '[adzerk.boot-reload :refer [reload]])
