@@ -1,0 +1,2 @@
+{:require  [app.core]
+ :init-fns [app.core/run]}
