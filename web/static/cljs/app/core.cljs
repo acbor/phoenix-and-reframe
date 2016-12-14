@@ -1,29 +1,51 @@
 (ns app.core
   (:require [reagent.core :as r :refer-macros [with-let]]))
 
-(defn button [count text update class]
+(def counter-value (r/atom 0))
+
+(defn button [text update class]
   [:button.btn
-   {:on-click #(swap! count update)
+   {:on-click update
     :class class}
    text])
 
-(defn counter [count]
-  [:p "Value = " @count])
+(defn counter [counter-value]
+  [:p "Value = " @counter-value])
 
-(defn app []
-  (with-let [count (r/atom 0)]
+(defn app [channel]
+  (with-let [counter-updater (fn [update-fn]
+                               #(.push channel "set" #js{:value (update-fn @counter-value)}))]
     [:div.container>div.jumbotron
-     [counter count]
+     [counter counter-value]
      [:div.btn-group
-      [button count "-1" dec :btn-danger]
-      [button count "+1" inc :btn-primary]]]))
+      [button "-1" (counter-updater dec) :btn-danger]
+      [button "+1" (counter-updater inc) :btn-primary]]]))
 
 (defn element-by-id [id]
   (.getElementById js/document id))
 
-(defn mount-root []
+(defn mount-root [channel]
   (let [root (element-by-id "root")]
-    (r/render app root)))
+    (r/render [app channel] root)))
+
+(defn connect-socket []
+  (let [user-token (.-userToken js/window)
+        socket-url "/socket"
+        socket (js/Socket. socket-url #js{:params #js{:token user-token}})]
+    (doto socket .connect)))
+
+(defn join-channel [socket]
+  (let [channel (.channel socket "room:lobby" #js{})]
+    (doto channel
+      (.on "set" (fn [msg]
+                   (let [value (aget msg "value")]
+                     (reset! counter-value value))))
+      (.join))))
+
+(defn connect-to-ws []
+  (-> (connect-socket)
+      (join-channel)))
 
 (defn run []
-  (mount-root))
+  (-> (connect-to-ws)
+      (mount-root)))

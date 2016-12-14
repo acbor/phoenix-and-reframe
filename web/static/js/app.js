@@ -18,7 +18,7 @@ import "phoenix_html"
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-// import socket from "./socket"
-
+window.Phoenix = require("phoenix")
+window.Socket = window.Phoenix.Socket
 window.React = require("react")
 window.ReactDOM = require("react-dom")
