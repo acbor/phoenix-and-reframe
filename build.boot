@@ -29,6 +29,7 @@
   (comp
     (watch)
     (notify :title "Dev")
-    (reload)
-    (cljs)
-    (target)))
+    (comp
+     (reload)
+     (cljs)
+     (target))))
